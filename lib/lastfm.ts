@@ -6,23 +6,16 @@
 
 import type { SpotifyArtist, SpotifyTrack } from "./spotify"
 
-const LASTFM_API = "https://ws.audioscrobbler.com/2.0/"
-
-function apiKey(): string {
-  return process.env.NEXT_PUBLIC_LASTFM_API_KEY || ""
-}
+// All Last.fm requests go through our internal /api/lastfm proxy so the
+// API key stays server-side — never appears in the browser Network tab
+// or the client JS bundle.
 
 async function call<T>(params: Record<string, string>): Promise<T> {
-  const url = new URL(LASTFM_API)
-  url.search = new URLSearchParams({
-    ...params,
-    api_key: apiKey(),
-    format: "json",
-  }).toString()
-  const res = await fetch(url.toString(), { cache: "no-store" })
+  const search = new URLSearchParams(params).toString()
+  const res = await fetch(`/api/lastfm?${search}`, { cache: "no-store" })
   const data = await res.json()
   if (!res.ok || data.error) {
-    throw new Error(data.message || `Last.fm ${params.method} failed`)
+    throw new Error(data.message || data.error || `Last.fm ${params.method} failed`)
   }
   return data as T
 }
