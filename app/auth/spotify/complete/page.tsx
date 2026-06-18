@@ -60,20 +60,48 @@ function CompleteInner() {
             <h1 className="text-2xl font-bold">Spotify login didn't work</h1>
             <p className="text-muted-foreground text-sm">{error}</p>
             <div className="rounded-xl border border-border bg-card p-4 text-sm text-left space-y-2">
-              <p className="font-semibold">Most likely cause</p>
-              <p className="text-muted-foreground">
-                Your Spotify account isn't on this app's tester allowlist.
-                Spotify keeps new apps in "Development Mode" — only the developer can let people in
-                until the app is approved for public use.
-              </p>
-              <p className="font-semibold pt-2">What to do</p>
-              <p className="text-muted-foreground">
-                Email the developer your Spotify-registered email + display name (exactly as it appears in
-                your Spotify profile), or use the Last.fm option on the home page — it works for anyone.
-              </p>
+              {error.toLowerCase().includes("pkce") || error.toLowerCase().includes("verifier") || error.toLowerCase().includes("authorization code") ? (
+                <>
+                  <p className="font-semibold">Most likely cause</p>
+                  <p className="text-muted-foreground">
+                    Your browser lost the security token between steps. This usually
+                    happens if you switched tabs during login, refreshed this page,
+                    or started the flow on a different URL (e.g. localhost vs. the
+                    deployed site).
+                  </p>
+                  <p className="font-semibold pt-2">What to do</p>
+                  <p className="text-muted-foreground">
+                    Go back home and try again — keep everything in one tab and
+                    don't refresh until you reach the dashboard.
+                  </p>
+                </>
+              ) : error.toLowerCase().includes("access_denied") || error.toLowerCase().includes("not authorized") ? (
+                <>
+                  <p className="font-semibold">Most likely cause</p>
+                  <p className="text-muted-foreground">
+                    Your Spotify account isn't on this app's tester allowlist.
+                    Spotify keeps new apps in "Development Mode" — only the
+                    developer can let people in until the app is approved.
+                  </p>
+                  <p className="font-semibold pt-2">What to do</p>
+                  <p className="text-muted-foreground">
+                    Email the developer your Spotify-registered email + display
+                    name, or use the Last.fm option on the home page — it works
+                    for anyone.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold">What to try</p>
+                  <p className="text-muted-foreground">
+                    Go back to the home page and try again. If it keeps failing,
+                    use the Last.fm option — it works without a Spotify login.
+                  </p>
+                </>
+              )}
             </div>
             <a href="/" className="text-primary underline inline-block">
-              ← Back to home (try Last.fm instead)
+              ← Back to home
             </a>
           </>
         ) : (
